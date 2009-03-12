@@ -1,7 +1,7 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Tie-Hash-MultiValue
-version:      0.04
+version:      0.05
 version_from: lib/Tie/Hash/MultiValue.pm
 installdirs:  site
 requires:
@@ -9,4 +9,4 @@ requires:
     Tie::Hash:                     1
 
 distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.28
+generated_by: ExtUtils::MakeMaker version 6.30

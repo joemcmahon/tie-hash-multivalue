@@ -5,7 +5,7 @@ use Tie::Hash;
 
 BEGIN {
 	use vars qw ($VERSION);
-	$VERSION     = 0.04;
+	$VERSION     = 0.05;
 }
 
 =head1 NAME
@@ -24,8 +24,8 @@ Tie::Hash::MultiValue - store multiple values per key
   my @more    = @{$hash{'bar'}};   # @more   = ('two', 'three');
   my @nothing = $hash{'baz'};      # undefined if nothing there
 
-  # You can save multiple values at once:
-  $hash{'more'} = ('fee','fie', 'foe', 'fum');
+  # You can save multiple values:
+  map  { $hash{'more'} = $_ } qw(fee fie foe fum);
   my @giant_words = @{$hash{'more'}};
 
   # You can tie an anonymous hash as well.
