@@ -8,6 +8,6 @@ WriteMakefile(
     ABSTRACT     => '',
     PREREQ_PM    => {
                      'Test::Simple' => 0.44,
-                     'Tie::Hash' => 0,
+                     'Tie::Hash' => 1.00,
                     },
 );

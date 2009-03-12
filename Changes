@@ -3,4 +3,6 @@ Revision history for Perl module Tie::Hash::MultiValue
 0.01 Wed Apr  7 11:31:18 2004
 	- original version; created by ExtUtils::ModuleMaker 0.32
 
-
+0.02 Sat Aug  7 03:03:45 2004
+	- explicit requirement for Tie::Hash 1.00 to force Perl 5.6
+	  to pick it up
