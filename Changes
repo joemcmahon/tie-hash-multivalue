@@ -14,3 +14,9 @@ Revision history for Perl module Tie::Hash::MultiValue
 
 0.04 Tue Sep 20 17:48:52 2005
 	- Um, I guess I didn't add the pod tests. Trying again.
+
+0.05 Thu Sep 20 (unknown time) 2007
+	- Corrected 'setting multiple values' example
+
+0.06 Fri Feb  8 12:11:35 PST 2008
+	- Teeny-tiny miscapitalization of the module name in the USAGE. :(

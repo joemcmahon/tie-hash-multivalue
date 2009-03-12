@@ -5,7 +5,7 @@ use Tie::Hash;
 
 BEGIN {
 	use vars qw ($VERSION);
-	$VERSION     = 0.05;
+	$VERSION     = 0.06;
 }
 
 =head1 NAME
@@ -15,7 +15,7 @@ Tie::Hash::MultiValue - store multiple values per key
 =head1 SYNOPSIS
 
   use Tie::Hash::MultiValue;
-  tie %hash, 'Tie::Hash::Multivalue';
+  tie %hash, 'Tie::Hash::MultiValue';
   $hash{'foo'} = 'one';
   $hash{'bar'} = 'two';
   $hash{'bar'} = 'three';
@@ -37,7 +37,7 @@ Tie::Hash::MultiValue - store multiple values per key
 
 =head1 DESCRIPTION
 
-C<Tie::Hash::Multivalue> allows you to have hashes which store their values
+C<Tie::Hash::MultiValue> allows you to have hashes which store their values
 in anonymous arrays, appending any new value to the already-existing ones.
 
 This means that you can store as many items as you like under a single key,
