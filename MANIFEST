@@ -1,14 +1,15 @@
-MANIFEST
-LICENSE
-README
-Todo
 Changes
 lib/Tie/Hash/MultiValue.pm
+LICENSE
+Makefile.PL
+MANIFEST
+META.yml			Module meta-data (added by MakeMaker)
+README
 t/001_load.t
 t/002_store.t
 t/003_ref.t
 t/004_unique.t
 t/005_custom.t
-Makefile.PL
-
-META.yml                                 Module meta-data (added by MakeMaker)
+t/pod-coverage.t
+t/pod.t
+Todo

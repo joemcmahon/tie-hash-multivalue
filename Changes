@@ -11,3 +11,6 @@ Revision history for Perl module Tie::Hash::MultiValue
 	- Added pod and pod coverage tests
 	- explicit requirement for 5.8 to make sure we don't try
 	  to re-install perl to get this module working
+
+0.04 Tue Sep 20 17:48:52 2005
+	- Um, I guess I didn't add the pod tests. Trying again.
