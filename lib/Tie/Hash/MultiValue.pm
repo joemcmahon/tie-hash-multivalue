@@ -5,7 +5,7 @@ use Tie::Hash;
 
 BEGIN {
 	use vars qw ($VERSION);
-	$VERSION     = 0.06;
+	$VERSION     = 1.00;
 }
 
 =head1 NAME
@@ -15,25 +15,32 @@ Tie::Hash::MultiValue - store multiple values per key
 =head1 SYNOPSIS
 
   use Tie::Hash::MultiValue;
-  tie %hash, 'Tie::Hash::MultiValue';
+  my $controller = tie %hash, 'Tie::Hash::MultiValue';
   $hash{'foo'} = 'one';
   $hash{'bar'} = 'two';
   $hash{'bar'} = 'three';
 
+  # Fetch the values as references to arrays.
+  $controller->refs;
   my @values  = @{$hash{'foo'}};   # @values = ('one');
   my @more    = @{$hash{'bar'}};   # @more   = ('two', 'three');
-  my @nothing = $hash{'baz'};      # undefined if nothing there
-
-  # You can save multiple values:
-  map  { $hash{'more'} = $_ } qw(fee fie foe fum);
-  my @giant_words = @{$hash{'more'}};
+  my @nothing = @{$hash{'baz'}};   # empty list if nothing there
 
   # You can tie an anonymous hash as well.
-  my $hash = {};
-  tie %$hash, 'Tie::Hash::MultiValue';
-  $hash->{'sample'} = 'one';
-  $hash->{'sample'} = 'two';
-  # $hash->{'sample'} now contains ['one','two']
+  my $hashref = {};
+  tie %$hashref, 'Tie::Hash::MultiValue';
+  $hashref->{'sample'} = 'one';
+  $hashref->{'sample'} = 'two';
+  # $hashref->{'sample'} now contains ['one','two']
+
+  # Iterate over the items stored under a key.
+  $controller->iterators;
+  while(my $value = $hash{bar}) {
+    print "bar: $value\n";
+  }
+  # prints
+  #   bar: two
+  #   bar: three
 
 =head1 DESCRIPTION
 
@@ -104,7 +111,12 @@ if they are not.
 sub TIEHASH {
   my $class = shift;
   my $self = [{},{}];
+  bless $self, $class;
+
   push @_, undef if @_ % 2 == 1;
+
+  $self->refs;
+
 
   my %args = @_;
   if (exists $args{'unique'}) {
@@ -118,7 +130,7 @@ sub TIEHASH {
                                  };
     }
   }
-  bless $self, $class;
+  return $self;
 }
 
 =head2 STORE
@@ -147,6 +159,136 @@ sub STORE {
   else {
     push @{$self->[0]->{$key}}, @values;
   }
+}
+
+=head1 FETCH
+
+Fetches the current value(s) for a key, depending on the current mode
+we're in.
+
+=over 
+
+=item * 'refs' mode
+
+Always returns an anonymous array containing the values stored under this key,
+or an empty anonymous array if there are none.
+
+=item * 'iterators' mode
+
+If there is a single entry, acts just like a normal hash fetch. If there are 
+multiple entries for a key, we automatically iterate over the items stored 
+under the key, returning undef when the last item under that key has been 
+fetched. 
+
+Storing more elements into a key while you're iterating over it will result
+in the new elements being returned at the end of the list. If you've turned
+on 'unique', remember that they won't be stored if they're already in the
+value list for the key.
+
+=over
+
+B<NOTE>: If you store undef in your hash, and then store other values, the 
+iterator will, when it sees your undef, return it as a normal value. This 
+means that you won't be able to tell whether that's I<your> undef, or the 
+'I have no more data here' undef. Using 'list' or 'refs' mode is strongly
+suggested if you need to store data that may include undefs.
+
+=back
+
+Note that every key has its own iterator, so you can mix accesses across keys
+and still get all the values:
+
+  my $controller = tie %hash, 'Tie::Hash::MultiValue';
+  $controller->iterators;
+  $hash{x} = $_ for qw(a b c);
+  $hash{y} = $_ for qw(d e f);
+  while ( my($x, $y) = ($hash{x}, $hash{y}) {
+     # gets (a,d) (b,e) (c,f)
+  }
+
+=back
+
+=cut
+
+sub FETCH {
+    my($self) = @_;
+    { 'refs'      => \&FETCH_refs,
+      'iterators' => \&FETCH_iters,
+    }->{ $self->[1]->{mode} }->(@_);
+}
+
+sub FETCH_refs {
+    my($self, $key) = @_;
+    return $self->[0]->{$key};
+}
+
+sub FETCH_iters {
+  my($self, $key) = @_;
+  # First, the simplest case. If we're fetching a key that doesn't exist,
+  # just return undef, and don't bother iterating at all.
+  return undef unless exists $self->[0]->{$key};
+
+  # Regular fetch in scalar context. If we are not yet 
+  # iterating, set up iteration over this key.
+  if (! $self->[1]->{iterators} or ! $self->[1]->{iterators}->{$key}) {
+    $self->[1]->{iterators}->{$key}->{iterator_index} = 0;
+    $self->[1]->{iterators}->{$key}->{iterating_over} = $key;
+  }
+  # Iterator either just set up or already running.
+  # Fetch the current entry for this key and bump the iterator
+  # for next time. If we're out of entries, return an undef
+  # and stop the iterator. We've already checked to see if there
+  # is anything under this key, so the deref is safe.
+  my $highest_index = @{ $self->[0]->{$key} } - 1;
+  my $current_index = $self->[1]->{iterators}->{$key}->{iterator_index};
+  if ($current_index > $highest_index) {
+    # Out of elements (or there are none).
+    $self->[1]->{iterators}->{$key} = undef;
+    return undef;
+  }
+  else {
+      # Return current value after bumping the iterator.
+      $self->[1]->{iterators}->{$key}->{iterator_index} += 1;
+      return $self->[0]->{$key}->[$current_index];
+  }
+}
+
+=head1 iterators
+
+Called on the object returned from tie(). Tells FETCH to return elements 
+one at a time each time the key is accessed until no more element remain.
+
+=cut
+
+sub iterators {
+    my($self) = @_;
+    $self->[1]->{mode} = 'iterators';
+    $self->[1]->{iterators} = {};
+    return;
+}
+
+=head1 refs
+
+Tells FETCH to always return the reference associated with a key. (This allows
+you to, for instance, replace all of the values at once with different ones.)
+
+=cut
+
+sub refs {
+    my($self) = @_;
+    $self->[1]->{mode} = 'refs';
+    $self->[1]->{iterators} = {};
+    return;
+}
+
+=head1 mode
+
+Tells you what mode you're currently in. Does I<not> let you change it!
+
+=cut
+
+sub mode {
+    return $_[0]->[1]->{mode};
 }
 
 1; #this line is important and will help the module return a true value

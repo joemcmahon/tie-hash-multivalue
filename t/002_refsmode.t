@@ -2,12 +2,13 @@
 
 # t/002_store.t - basic functionality of multivalue hashes
 
-use Test::More tests => 17;
+use Test::More tests => 18;
 
 BEGIN { use_ok( 'Tie::Hash::MultiValue' ); }
 
 my $object = tie %hash, 'Tie::Hash::MultiValue';
 isa_ok($object, 'Tie::Hash::MultiValue');
+is $object->mode, 'refs', 'in refs mode';
 
 my @keys;
 @keys = keys %hash;
@@ -29,6 +30,7 @@ $hash{'foo'} = 3;
 is(scalar @keys, 2, 'two items (one multiple), two keys');
 @keys = sort @keys;
 is_deeply(\@keys, ['bar','foo'], 'keys are still as expected');
+
 is_deeply($hash{'foo'}, [1,3], 'multivalue is as expected');
 is_deeply($hash{'bar'}, [2], 'single value as expected');
 is($hash{'baz'}, undef, 'empty hash element as expected');

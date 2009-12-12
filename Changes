@@ -1,5 +1,15 @@
 Revision history for Perl module Tie::Hash::MultiValue
 
+1.00 Fri Dec 11 15:43:50 PST 2009
+	- Compatible API change to support iterators
+	  -- New 'controller' methods can be called on the object
+	     returned by tie()
+	     --- tied(%hash)->refs (default): return all hash entries
+                 as anonymous array refs - this was the old default
+	     --- tied(%hash)->iterators: return each item stored in
+ 	         each key, one at a time, returning 'undef' when there
+                 are no more.
+
 0.01 Wed Apr  7 11:31:18 2004
 	- original version; created by ExtUtils::ModuleMaker 0.32
 
