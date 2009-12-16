@@ -5,7 +5,7 @@ use Tie::Hash;
 
 BEGIN {
 	use vars qw ($VERSION);
-	$VERSION     = 1.01;
+	$VERSION     = 1.02;
 }
 
 =head1 NAME
@@ -161,7 +161,7 @@ sub STORE {
   }
 }
 
-=head1 FETCH
+=head2 FETCH
 
 Fetches the current value(s) for a key, depending on the current mode
 we're in.
@@ -212,17 +212,17 @@ and still get all the values:
 
 sub FETCH {
     my($self) = @_;
-    { 'refs'      => \&FETCH_refs,
-      'iterators' => \&FETCH_iters,
+    { 'refs'      => \&_FETCH_refs,
+      'iterators' => \&_FETCH_iters,
     }->{ $self->[1]->{mode} }->(@_);
 }
 
-sub FETCH_refs {
+sub _FETCH_refs {
     my($self, $key) = @_;
     return $self->[0]->{$key};
 }
 
-sub FETCH_iters {
+sub _FETCH_iters {
   my($self, $key) = @_;
   # First, the simplest case. If we're fetching a key that doesn't exist,
   # just return undef, and don't bother iterating at all.
@@ -253,7 +253,7 @@ sub FETCH_iters {
   }
 }
 
-=head1 iterators
+=head2 iterators
 
 Called on the object returned from tie(). Tells FETCH to return elements 
 one at a time each time the key is accessed until no more element remain.
@@ -267,7 +267,7 @@ sub iterators {
     return;
 }
 
-=head1 refs
+=head2 refs
 
 Tells FETCH to always return the reference associated with a key. (This allows
 you to, for instance, replace all of the values at once with different ones.)
@@ -281,7 +281,7 @@ sub refs {
     return;
 }
 
-=head1 mode
+=head2 mode
 
 Tells you what mode you're currently in. Does I<not> let you change it!
 

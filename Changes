@@ -1,5 +1,8 @@
 Revision history for Perl module Tie::Hash::MultiValue
 
+1.02 Wed Dec 16 13:33:32 PST 2009
+	- Author should actually run author tests. POD tests now pass.
+
 1.01 Sat Dec 12 13:09:36 PST 2009
 	- Removed '._' files causing build fails
 	- Reordered revision history
