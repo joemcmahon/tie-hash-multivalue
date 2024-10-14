@@ -3,7 +3,7 @@
    "author" : [
       "Joe McMahon (mcmahon@cpan.org)"
    ],
-   "dynamic_config" : 0,
+   "dynamic_config" : 1,
    "generated_by" : "Module::Build version 0.4234",
    "license" : [
       "unknown"
@@ -14,6 +14,11 @@
    },
    "name" : "Tie-Hash-MultiValue",
    "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.42"
+         }
+      },
       "runtime" : {
          "requires" : {
             "Test::Simple" : "0.44",
